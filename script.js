@@ -44,7 +44,8 @@ let getRecipe = () => {
 
     document.getElementById('favDiv').style.display = 'none';
     document.getElementById('filterDiv').style.display = 'none';
-        
+    document.getElementById('mealDiv').style.display = 'block';   
+    document.getElementById('mealResultDiv').style.display = 'block';
 } 
 
 
@@ -60,10 +61,9 @@ let getMealRecipe = (e) => {
         let mealItem = e.target.parentElement.parentElement;
         //alert(mealItem.dataset.id);
         let mealId = mealItem.dataset.id;
-        var lsNames = localStorage.getItem('mealId'), 
-        arr = [];
-        if (!lsNames) { lsName = ''; }  // initialize if null
-        arr = lsNames.split(',');
+        var lsNames = localStorage.getItem('mealId');
+        arr = lsNames ?  lsNames.split(',') : [];
+        //arr = lsNames.split(',');
         
         arr.push(mealId);
         lsNames = arr.join(',');
@@ -98,38 +98,44 @@ recipeCloseBtn.addEventListener('click', () => {
 let getFavorites = () => {
     let ls = localStorage.getItem('mealId');
     let showMeal = document.getElementById('show-meal');
-
-    let mealIds = ls.split(',');
+    let mealIds = ls ?  ls.split(',') : [];
+    //let mealIds = ls.split(',');
     //alert(mealIds.length);
-    let html = '';     
-    for(let i=0;i<mealIds.length;i++){
-        
-        //alert(mealIds[i]);
-        let url = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealIds[i]}`;
-        fetch(url)
-        .then((resp) => resp.json())
-        .then((data) => {
-                  
-            html += `
-            <div class = "meal-item" data-id="${data.meals[0].idMeal}">
-                <div class = "meal-img">
-                <img src = "${data.meals[0].strMealThumb}" alt = "food">
+    let html = ''; 
+    if(ls){
+            
+        for(let i=0;i<mealIds.length;i++){
+            
+            //alert(mealIds[i]);
+            let url = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealIds[i]}`;
+            fetch(url)
+            .then((resp) => resp.json())
+            .then((data) => {
+                    
+                html += `
+                <div class = "meal-item" data-id="${data.meals[0].idMeal}">
+                    <div class = "meal-img">
+                    <img src = "${data.meals[0].strMealThumb}" alt = "food">
+                    </div>
+                    <div class = "meal-name">
+                    <h3>${data.meals[0].strMeal}</h3>
+                    <a href = "#" class = "recipe-btn">Get Recipe</a>
+                    </div>
                 </div>
-                <div class = "meal-name">
-                <h3>${data.meals[0].strMeal}</h3>
-                <a href = "#" class = "recipe-btn">Get Recipe</a>
-                </div>
-            </div>
-        `;
-        showMeal.innerHTML = html;
-    })
-    .catch(() =>{
-        html = `
-        <h1>Please search and add favorite foods</h1>
-        `;
-        showMeal.innerHTML = html;
-    });
+            `;
+            showMeal.innerHTML = html;
+        })
+        .catch(() =>{
+            
+        });
+        }   
     
+    }
+    else{
+        html = `
+        <h1>Your favorite list is empty</h1>
+        `;
+        showMeal.innerHTML = html;
     }
     document.getElementById('favDiv').style.display = 'block';
     document.getElementById('mealDiv').style.display = 'none';
@@ -199,6 +205,7 @@ document.getElementById('search-btns').addEventListener("click",function(){
     document.getElementById('mealDiv').style.display = 'block';
     document.getElementById('favDiv').style.display = 'none';
     document.getElementById('filterDiv').style.display = 'none';
+    document.getElementById('search-input').value="";
 });
 document.getElementById('filter-btn').addEventListener("click",filterDropdown);
 document.getElementById('filter-dropdown').addEventListener('click',getFilterMeals);
